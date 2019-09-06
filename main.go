@@ -9,6 +9,7 @@ import (
 	"gioui.org/ui/key"
 	"gioui.org/ui/layout"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -20,9 +21,14 @@ type App struct {
 	ctxCancel     context.CancelFunc
 }
 
+var (
+	profile = flag.Bool("profile", false, "serve profiling data at http://localhost:6060")
+)
+
+
 func main() {
 	flag.Parse()
-
+	initProfiling()
 	go func() {
 		w := app.NewWindow(
 			app.WithWidth(ui.Dp(400)),
@@ -35,6 +41,15 @@ func main() {
 		}
 	}()
 	app.Main()
+}
+
+func initProfiling() {
+	if !*profile {
+		return
+	}
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 }
 
 func newApp(w *app.Window) *App {

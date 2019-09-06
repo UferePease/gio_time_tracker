@@ -8,6 +8,10 @@ import (
 	"gioui.org/ui/measure"
 	"gioui.org/ui/paint"
 	"gioui.org/ui/text"
+	"golang.org/x/image/font/gofont/gobold"
+	"golang.org/x/image/font/gofont/goitalic"
+	"golang.org/x/image/font/gofont/gomono"
+	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/font/sfnt"
 	"image"
 	"image/color"
@@ -73,6 +77,18 @@ func argb(c uint32) color.RGBA {
 	return color.RGBA{A: uint8(c >> 24), R: uint8(c >> 16), G: uint8(c >> 8), B: uint8(c)}
 }
 
+func init() {
+	fonts.regular = mustLoadFont(goregular.TTF)
+	fonts.bold = mustLoadFont(gobold.TTF)
+	fonts.italic = mustLoadFont(goitalic.TTF)
+	fonts.mono = mustLoadFont(gomono.TTF)
+	var ops ui.Ops
+	theme.text = colorMaterial(&ops, rgb(0x333333))
+	theme.tertText = colorMaterial(&ops, rgb(0xbbbbbb))
+	theme.brand = colorMaterial(&ops, rgb(0x62798c))
+	theme.white = colorMaterial(&ops, rgb(0xffffff))
+}
+
 func newUI() *TimerUI {
 	//u := new(TimerUI)
 	u := &TimerUI{
@@ -106,6 +122,14 @@ func newUI() *TimerUI {
 		Text: "Project",
 	}
 	return u
+}
+
+func mustLoadFont(fontData []byte) *sfnt.Font {
+	fnt, err := sfnt.Parse(fontData)
+	if err != nil {
+		panic("failed to load font")
+	}
+	return fnt
 }
 
 func (u *TimerUI) face(f *sfnt.Font, size float32) text.Face {
@@ -187,3 +211,4 @@ func (u *TimerUI) Layout(c ui.Config, q input.Queue, ops *ui.Ops, cs layout.Cons
 
 	return u.layoutPage(c, q, ops, cs)
 }
+
